@@ -1,16 +1,110 @@
 const { Given, When, Then, After, AfterAll } = require('@cucumber/cucumber');
-const { Builder, By, Capabilities, Key } = require('selenium-webdriver');
-const { expect } = require('chai');
-
+const { Builder, By, Capabilities, Key, Browser, until } = require('selenium-webdriver');
+const { expect, assert } = require('chai');
+// var assert = require('assert');
+// var expect = require('chai');
+var should = require('chai').should();
+var webdriver = require('selenium-webdriver');
 require("chromedriver");
+// var sleep = require('sleep');
 
 // driver setup
 const capabilities = Capabilities.chrome();
 capabilities.set('chromeOptions', { "w3c": false });
 const driver = new Builder().withCapabilities(capabilities).build();
 
-var {setDefaultTimeout} = require('@cucumber/cucumber');
+var { setDefaultTimeout } = require('@cucumber/cucumber');
+const { elementIsDisabled, elementIsVisible } = require('selenium-webdriver/lib/until');
+const { Driver } = require('selenium-webdriver/chrome');
 setDefaultTimeout(60 * 1000);
+
+// const loginCSSSelector = 'span.ssls-toolbar__btn-text';
+const loginSelector = "//span[contains(text(),'Log in')]";
+const authPageSelector = "//h1[contains(text(),'Authorization')]";
+const authPage = 'h1.page-title';
+const footerSelector = 'footer.ssls-footer';
+const wrongSelector = 'span.anton';
+
+Given('I am not registered user', async function () {
+    this.email = 'random_email@gmail.com';
+    this.password = '123456';
+});
+
+When('I open Home page', async function () {
+    await driver.get('https://www.sbzend.ssls.com');
+    // let footerIsLocated = await driver.wait(until.elementLocated(By.css(footerSelector), 10000));
+    // let loginButton = await driver.wait(until.elementLocated(By.xpath(wrongSelector), 10000));
+    // let foo = await ele.getText();
+    // assert.equal(foo, "LOG IN");
+    // driver.wait(function () {
+    //     return driver.isDisplayed(webdriver.By.xpath(wrongSelector));
+    // }, 10000);
+    // Browser.wait(elementIsVisible(By.xpath(wrongSelector)));
+});
+
+Then('I should see Home page', async function () {
+    // assert.strictEqual(driver.findElement(By.css(wrongSelector)).isDisplayed, true);
+    let res = await driver.findElement(By.css(footerSelector)).isDisplayed().then(value => { return true }, reason => { return false });
+    assert.equal(res, true, "Page footer is not displayed");
+    const pageTitle = await driver.getTitle();
+    const isTitleStartWithCheap = pageTitle.toLowerCase().lastIndexOf('cheap', 0) === 0;
+    // assert.equal(isTitleStartWithCheap, true, 'Page title does not start with word cheap');
+});
+
+Then('I should see button with LOG IN text', async function () {
+    let res = await driver.findElement(By.xpath(loginSelector)).getAttribute("class");
+    assert(res == "ssls-toolbar__btn-text", "Log in element is not a button");
+    res = await driver.findElement(By.xpath(loginSelector)).isDisplayed().then(value => { return true }, reason => { return false });
+    assert.equal(res, true, "Log In text is not displayed");
+});
+
+When('I click LOG IN text', async function () {
+    await driver.findElement(By.xpath(loginSelector)).click();
+    // sleep.sleep(15);
+    // Driver.sleep(5000);
+    // (await driver).sleep(5000);
+    
+});
+
+Then('I should see Authorization page', async function () {
+    let authPageLoaded = await driver.wait(until.elementLocated(By.css(authPage), 10000));
+    res = await driver.findElement(By.css(authPage)).isDisplayed().then(value => { return true }, reason => { return false });
+    assert.equal(res, true, "Authorization page is not displayed");
+});
+
+Then('I should see credentials inputs', async function () {
+    let emailFieldLocated = await driver.wait(until.elementLocated(By.name('email'), 10000));
+    // let passwordFieldLocated = await driver.wait(until.elementLocated(By.name('password'), 10000));
+    res = await driver.findElement(By.name('email')).isDisplayed().then(value => { return true }, reason => { return false });
+    assert.equal(res, true, "Email field is not displayed");
+    res = await driver.findElement(By.name('password')).isDisplayed().then(value => { return true }, reason => { return false });
+    assert.equal(res, true, "Password field is not displayed");
+});
+
+// When('I enter credentials and click {string} icon', function (string) {
+//     return 'pending';
+// });
+
+// Then('I should see entered password', function () {
+//     return 'pending';
+// });
+
+// When('I click on {string} button', function (string) {
+//     return 'pending';
+// });
+
+// Then('I should see error message', function () {
+//     return 'pending';
+// });
+
+AfterAll(function () {
+    driver.quit();
+    return Promise.resolve()
+});
+
+
+
+// driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 
 // function isItFriday(today) {
 
@@ -49,63 +143,3 @@ setDefaultTimeout(60 * 1000);
 //     const isTitleStartWithCheese = title.toLowerCase().lastIndexOf(`${searchTerm}`, 0) === 0;
 //     expect(isTitleStartWithCheese).to.equal(true);
 // });
-
-
-// ########################################################
-// ########################################################
-// ########################################################
-
-Given('I am not registered user', async function () {
-    this.email = 'ssls.automation+666@gmail.com';
-    this.password = '123456';
-});
-
-When('I open Home page', async function () {
-    // await driver.manage().setTimeouts( { implicit: 5000 } );
-    await driver.get('https://www.sbzend.ssls.com');
-});
-
-Then('I should see Home page', async function () {
-    const pageTitle = await driver.getTitle();
-    const isTitleStartWithCheap = pageTitle.toLowerCase().lastIndexOf(`cheap`, 0) === 0;
-    expect(isTitleStartWithCheap).to.equal(true);
-});
-
-When('I click {string} text', async function (string) {
-    // Write code here that turns the phrase above into concrete actions
-    let logInText = driver.findElement(By.css('span.ssls-toolbar__btn-text'));
-    // let logInText = await driver.findElement(By.css('span:contains(`${string}`)'));
-    // const expectedText = string.toLowerCase();
-    // const string2 = string3.toLowerCase
-    await logInText.click();
-});
-
-Then('I should see Authorization page', function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
-});
-
-When('I enter credentials and click {string} icon', function (string) {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
-});
-
-Then('I should see entered password', function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
-});
-
-When('I click on {string} button', function (string) {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
-});
-
-Then('I should see error message', function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
-});
-
-AfterAll(function () {
-    driver.quit();
-    return Promise.resolve()
-});
