@@ -18,12 +18,17 @@ const { elementIsDisabled, elementIsVisible } = require('selenium-webdriver/lib/
 const { Driver } = require('selenium-webdriver/chrome');
 setDefaultTimeout(60 * 1000);
 
-// const loginCSSSelector = 'span.ssls-toolbar__btn-text';
-const loginSelector = "//span[contains(text(),'Log in')]";
-const authPageSelector = "//h1[contains(text(),'Authorization')]";
-const authPage = 'h1.page-title';
-const footerSelector = 'footer.ssls-footer';
-const wrongSelector = 'span.anton';
+var locators = {
+    loginSelector: "//span[contains(text(),'Log in')]",
+    authPage: 'h1.page-title',
+    footerSelector: 'footer.ssls-footer',
+    enteredPassword: "//input[@name='password' and @type='text']",
+    loginButton: "//button[contains(text(),'Login')]",
+    eyeIcon: 'span.icon-eye',
+    errorMessage: "//div[contains(text(),'Uh oh! Email or password is incorrect')]",
+    errorMessage2: "//div[contains(text(),'Uh odfdh! Email or password is incorrect')]",
+    wrongSelector: 'span.anton'
+}
 
 Given('I am not registered user', async function () {
     this.email = 'random_email@gmail.com';
@@ -44,7 +49,7 @@ When('I open Home page', async function () {
 
 Then('I should see Home page', async function () {
     // assert.strictEqual(driver.findElement(By.css(wrongSelector)).isDisplayed, true);
-    let res = await driver.findElement(By.css(footerSelector)).isDisplayed().then(value => { return true }, reason => { return false });
+    let res = await driver.findElement(By.css(locators.footerSelector)).isDisplayed().then(value => { return true }, reason => { return false });
     assert.equal(res, true, "Page footer is not displayed");
     const pageTitle = await driver.getTitle();
     const isTitleStartWithCheap = pageTitle.toLowerCase().lastIndexOf('cheap', 0) === 0;
@@ -52,23 +57,23 @@ Then('I should see Home page', async function () {
 });
 
 Then('I should see button with LOG IN text', async function () {
-    let res = await driver.findElement(By.xpath(loginSelector)).getAttribute("class");
+    let res = await driver.findElement(By.xpath(locators.loginSelector)).getAttribute("class");
     assert(res == "ssls-toolbar__btn-text", "Log in element is not a button");
-    res = await driver.findElement(By.xpath(loginSelector)).isDisplayed().then(value => { return true }, reason => { return false });
+    res = await driver.findElement(By.xpath(locators.loginSelector)).isDisplayed().then(value => { return true }, reason => { return false });
     assert.equal(res, true, "Log In text is not displayed");
 });
 
 When('I click LOG IN text', async function () {
-    await driver.findElement(By.xpath(loginSelector)).click();
+    await driver.findElement(By.xpath(locators.loginSelector)).click();
     // sleep.sleep(15);
     // Driver.sleep(5000);
     // (await driver).sleep(5000);
-    
+
 });
 
 Then('I should see Authorization page', async function () {
-    let authPageLoaded = await driver.wait(until.elementLocated(By.css(authPage), 10000));
-    res = await driver.findElement(By.css(authPage)).isDisplayed().then(value => { return true }, reason => { return false });
+    let authPageLoaded = await driver.wait(until.elementLocated(By.css(locators.authPage), 10000));
+    res = await driver.findElement(By.css(locators.authPage)).isDisplayed().then(value => { return true }, reason => { return false });
     assert.equal(res, true, "Authorization page is not displayed");
 });
 
@@ -81,21 +86,28 @@ Then('I should see credentials inputs', async function () {
     assert.equal(res, true, "Password field is not displayed");
 });
 
-// When('I enter credentials and click {string} icon', function (string) {
-//     return 'pending';
-// });
+When('I enter credentials and click on eye icon', async function () {
+    await driver.findElement(By.name('email')).sendKeys(this.email);
+    await driver.findElement(By.name('password')).sendKeys(this.password);
+    await driver.findElement(By.css(locators.eyeIcon)).click();
+});
 
-// Then('I should see entered password', function () {
-//     return 'pending';
-// });
+Then('I should see entered password', async function () {
+    res = await driver.findElement(By.xpath(locators.enteredPassword)).isDisplayed().then(value => { return true }, reason => { return false });
+    assert.equal(res, true, "Entered password is not displayed");
+    let enteredPassword = await driver.findElement(By.xpath(locators.enteredPassword)).getText().then((res) =>
+    assert.equal(res, this.password, "Showed password doesn't match entered");
+});
 
-// When('I click on {string} button', function (string) {
-//     return 'pending';
-// });
+When('I click on Login button', async function () {
+    await driver.findElement(By.xpath(locators.loginButton)).click();
+});
 
-// Then('I should see error message', function () {
-//     return 'pending';
-// });
+Then('I should see error message', async function () {
+    let messageLocated = await driver.wait(until.elementLocated(By.xpath(locators.errorMessage), 10000));
+    res = await driver.findElement(By.xpath(locators.errorMessage)).isDisplayed().then(value => { return true }, reason => { return false });
+    assert.equal(res, true, "Error message is not displayed");
+});
 
 AfterAll(function () {
     driver.quit();

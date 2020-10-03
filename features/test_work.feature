@@ -1,9 +1,9 @@
 Feature: Test work
-    Not registered user tries to authorize and gets error
-    Registered can authorize succesfully
+    Not registered user tries to authorize and gets an error
+    Registered user can authorize succesfully
     Authorized user can edit profile settings
 
-    Scenario: Not registered user opens Home page
+    Scenario: Authorization page. Not registered user
         Given I am not registered user
         When I open Home page
         Then I should see Home page
@@ -11,8 +11,18 @@ Feature: Test work
         When I click LOG IN text
         Then I should see Authorization page
         And I should see credentials inputs
-        # When I enter credentials and click "eye" icon
-        # Then I should see entered password
-        # When I click on "Login" button
-        # Then I should see error message
+        When I enter credentials and click on eye icon
+        Then I should see entered password
+        When I click on Login button
+        Then I should see error message
 
+    # Scenario: Authorization page (Welcome back!)
+    #     Given I am registered user
+    #     When I open Home page
+    #     Then I should see Home page
+    #     When I click LOG IN text
+    #     Then I should see Authorization page
+    #     When I enter credentials and click on eye icon
+    #     Then I should see entered password
+    #     When I click on Login button
+    #     Then I should see User@ email button
