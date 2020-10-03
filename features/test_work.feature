@@ -16,13 +16,14 @@ Feature: Test work
         When I click on Login button
         Then I should see error message
 
-    # Scenario: Authorization page (Welcome back!)
-    #     Given I am registered user
-    #     When I open Home page
-    #     Then I should see Home page
-    #     When I click LOG IN text
-    #     Then I should see Authorization page
-    #     When I enter credentials and click on eye icon
-    #     Then I should see entered password
-    #     When I click on Login button
-    #     Then I should see User@ email button
+    Scenario: Authorization page (Welcome back!)
+        Given I am registered user
+        When I open Home page
+        Then I should see Home page
+        When I click LOG IN text
+        Then I should see Authorization page
+        And I should see credentials inputs
+        When I enter credentials and click on eye icon
+        Then I should see entered password
+        When I click on Login button
+        Then I should see "User@email" button

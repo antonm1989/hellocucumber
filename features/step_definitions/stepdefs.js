@@ -27,6 +27,7 @@ var locators = {
     eyeIcon: 'span.icon-eye',
     errorMessage: "//div[contains(text(),'Uh oh! Email or password is incorrect')]",
     errorMessage2: "//div[contains(text(),'Uh odfdh! Email or password is incorrect')]",
+    loggedInUserIcon: "span.ssls-toolbar__btn-text",
     wrongSelector: 'span.anton'
 }
 
@@ -35,20 +36,17 @@ Given('I am not registered user', async function () {
     this.password = '123456';
 });
 
+Given('I am registered user', async function () {
+    this.email = 'ssls.automation+666@gmail.com';
+    this.password = '123456';
+});
+
+
 When('I open Home page', async function () {
     await driver.get('https://www.sbzend.ssls.com');
-    // let footerIsLocated = await driver.wait(until.elementLocated(By.css(footerSelector), 10000));
-    // let loginButton = await driver.wait(until.elementLocated(By.xpath(wrongSelector), 10000));
-    // let foo = await ele.getText();
-    // assert.equal(foo, "LOG IN");
-    // driver.wait(function () {
-    //     return driver.isDisplayed(webdriver.By.xpath(wrongSelector));
-    // }, 10000);
-    // Browser.wait(elementIsVisible(By.xpath(wrongSelector)));
 });
 
 Then('I should see Home page', async function () {
-    // assert.strictEqual(driver.findElement(By.css(wrongSelector)).isDisplayed, true);
     let res = await driver.findElement(By.css(locators.footerSelector)).isDisplayed().then(value => { return true }, reason => { return false });
     assert.equal(res, true, "Page footer is not displayed");
     const pageTitle = await driver.getTitle();
@@ -65,10 +63,6 @@ Then('I should see button with LOG IN text', async function () {
 
 When('I click LOG IN text', async function () {
     await driver.findElement(By.xpath(locators.loginSelector)).click();
-    // sleep.sleep(15);
-    // Driver.sleep(5000);
-    // (await driver).sleep(5000);
-
 });
 
 Then('I should see Authorization page', async function () {
@@ -79,7 +73,6 @@ Then('I should see Authorization page', async function () {
 
 Then('I should see credentials inputs', async function () {
     let emailFieldLocated = await driver.wait(until.elementLocated(By.name('email'), 10000));
-    // let passwordFieldLocated = await driver.wait(until.elementLocated(By.name('password'), 10000));
     res = await driver.findElement(By.name('email')).isDisplayed().then(value => { return true }, reason => { return false });
     assert.equal(res, true, "Email field is not displayed");
     res = await driver.findElement(By.name('password')).isDisplayed().then(value => { return true }, reason => { return false });
@@ -95,8 +88,8 @@ When('I enter credentials and click on eye icon', async function () {
 Then('I should see entered password', async function () {
     res = await driver.findElement(By.xpath(locators.enteredPassword)).isDisplayed().then(value => { return true }, reason => { return false });
     assert.equal(res, true, "Entered password is not displayed");
-    let enteredPassword = await driver.findElement(By.xpath(locators.enteredPassword)).getText().then((res) =>
-    assert.equal(res, this.password, "Showed password doesn't match entered");
+    let enteredPassword = await driver.findElement(By.name('password')).getAttribute("value");
+    assert.equal(enteredPassword, this.password, "Showed password doesn't match entered");
 });
 
 When('I click on Login button', async function () {
@@ -104,9 +97,15 @@ When('I click on Login button', async function () {
 });
 
 Then('I should see error message', async function () {
-    let messageLocated = await driver.wait(until.elementLocated(By.xpath(locators.errorMessage), 10000));
+    await driver.wait(until.elementLocated(By.xpath(locators.errorMessage), 10000));
     res = await driver.findElement(By.xpath(locators.errorMessage)).isDisplayed().then(value => { return true }, reason => { return false });
     assert.equal(res, true, "Error message is not displayed");
+});
+
+Then('I should see {string} button', async function (string) {
+    await driver.wait(until.elementLocated(By.css(locators.loggedInUserIcon), 10000)); 
+    let res = await driver.findElement(By.css(locators.loggedInUserIcon)).getAttribute("value");
+    assert.equal(res, this.email, "Logged in user icon is not found");
 });
 
 AfterAll(function () {
